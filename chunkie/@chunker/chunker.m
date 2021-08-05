@@ -6,7 +6,7 @@ classdef chunker
 
 % author: Travis Askham (askhamwhat@gmail.com)
 
-    properties(Access=private)
+    properties(Access=protected)
         rstor
         dstor
         d2stor
@@ -25,14 +25,14 @@ classdef chunker
         h
         data
     end
-    properties(SetAccess=private)
+    properties(SetAccess=protected)
         nchmax
         nch
         nchstor
         hasdata
         vert
     end
-    properties(Dependent,SetAccess=private)
+    properties(Dependent,SetAccess=protected)
         k
         dim
         npt
@@ -185,52 +185,100 @@ classdef chunker
         %ADDVERT add vertex label to chunker object 
         %
             if (numel(newvert) == 0); warning('chunker:emptyvert',...
-                    'no vertex specified, doing nothing'); end
-            if (numel(newvert) == 1); warning('chunker:badvert',...
-              'free ends are not vertices in chunkers, doing nothing'); end
-            if (numel(newvert) > 1)
-                assert(all(and(1 <= newvert,newvert <= obj.nch)),...
-                    'vertex indices must correspond to existing chunks');
-                ends = chunkends(obj,newvert(:));
-                if (nargin < 3)
-                    lends = ends(:,1,:); rends = ends(:,2,:);
-                    lperm = permute(lends,[1,3,2]); 
-                    rperm = permute(rends,[1,3,2]);
-                
-                    lldist = squeeze(sqrt(sum( (lends - lperm).^2, 1)));
-                    rldist = squeeze(sqrt(sum( (lends - rperm).^2, 1)));
-                    rrdist = squeeze(sqrt(sum( (rends - rperm).^2, 1)));
-                
-                    ldist = min(lldist,rldist.'); ldist = sum(ldist,2);
-                    rdist = min(rldist,rrdist); rdist = sum(rdist,2);
-                    toleft = ldist < rdist;
-                end
-                
-                lens = chunklen(obj,newvert,obj.wstor); 
-                maxlen = max(lens(:));
-                tol = obj.verttol; tol = max(tol,maxlen*tol);
-                
-                vertends = zeros(obj.dim,numel(newvert));
-                vertends(:,toleft) = ends(:,1,toleft);
-                vertends(:,~toleft) = ends(:,2,~toleft);
-                
-                vertends = vertends - mean(vertends,2);
-                errvertends = norm(vertends,'fro');
-                if (errvertends > tol)
-                    warning('chunkie:badvertchunks', ...
-                     [sprintf('chunkends far from centroid %5.2e\n',...
-                     errvertends),
-                     'consider resetting verttol for chunker']);
-                end
-                
-                nvert1 = obj.nvert;
-                nvert1 = nvert1+1;
-                obj.adjstor(1,newvert(toleft)) = -nvert1;
-                obj.adjstor(2,newvert(~toleft)) = -nvert1;
-                obj.vert{nvert1} = newvert;
-                
+                    'no vertex specified, doing nothing'); return; end
+
+            if (~all(and(1 <= newvert,newvert <= obj.nch)))
+                warning('vertex indices must correspond to existing chunks, doing nothing');
+                return
             end
-        end    
+                
+            ends = chunkends(obj,newvert(:));
+            if (nargin < 3)
+                if (numel(newvert) == 1)
+                    warning(['when adding a single vertex must specify ',...
+                    'which side of chunk its on in toleft ', ...
+                    'input to addvert. doing nothing']);   
+                    return
+                end
+                lends = ends(:,1,:); rends = ends(:,2,:);
+                lperm = permute(lends,[1,3,2]); 
+                rperm = permute(rends,[1,3,2]);
+                
+                lldist = squeeze(sqrt(sum( (lends - lperm).^2, 1)));
+                rldist = squeeze(sqrt(sum( (lends - rperm).^2, 1)));
+                rrdist = squeeze(sqrt(sum( (rends - rperm).^2, 1)));
+                
+                ldist = min(lldist,rldist.'); ldist = sum(ldist,2);
+                rdist = min(rldist,rrdist); rdist = sum(rdist,2);
+                toleft = ldist < rdist;
+            end
+                
+            lens = chunklen(obj,newvert,obj.wstor); 
+            maxlen = max(lens(:));
+            tol = obj.verttol; tol = max(tol,maxlen*tol);
+                
+            vertends = zeros(obj.dim,numel(newvert));
+            vertends(:,toleft) = ends(:,1,toleft);
+            vertends(:,~toleft) = ends(:,2,~toleft);
+                
+            vertends = vertends - mean(vertends,2);
+            errvertends = norm(vertends,'fro');
+            if (errvertends > tol)
+                warning('chunkie:badvertchunks', ...
+                 [sprintf('chunkends far from centroid %5.2e\n',...
+                 errvertends),
+                 'consider resetting verttol for chunker']);
+            end
+                
+            nvert1 = obj.nvert;
+            nvert1 = nvert1+1;
+            obj.adjstor(1,newvert(toleft)) = -nvert1;
+            obj.adjstor(2,newvert(~toleft)) = -nvert1;
+            obj.vert{nvert1} = newvert;
+                
+        end
+            
+        function obj = permverts(obj,ivertlabels)
+            fail = 0;
+            
+            if (length(ivertlabels) ~= obj.nvert)
+                fail = 1;
+            end
+
+            itest = zeros(obj.nvert,1);
+            itest(ivertlabels)=1;
+            if (sum(itest) ~= obj.nvert)
+                fail = 1;
+            end
+            
+            if fail == 1
+                warning(['chunkie:permverts, not a permutation',...
+                    'doing nothing']);
+                return
+            end
+            
+            for i = 1:obj.nvert
+                j = ivertlabels(i);
+                tmp = obj.vert{i};
+                for l = 1:length(tmp)
+                    ll = tmp(l);
+                    if (obj.adjstor(1,ll) == -i)
+                        obj.adjstor(1,ll) = -j;
+                    end
+                    if (obj.adjstor(2,ll) == -i)
+                        obj.adjstor(2,ll) = -j;
+                    end
+                end
+            end
+            
+            vertcopy = obj.vert;
+            
+            for i = 1:obj.nvert
+                obj.vert{ivertlabels(i)} = vertcopy{i};
+            end
+                    
+                
+        end
             
         
         function obj = cleardata(obj)

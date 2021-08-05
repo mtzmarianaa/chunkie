@@ -1,4 +1,4 @@
-function chnkr = chunkerfunc(fcurve,cparams,pref)
+function chnkr = chunkerfunc(fcurve,cparams,pref,xs,ws,u,xs2,ws2,u2)
 %CHUNKERFUNC create a chunker object corresponding to a parameterized curve
 %
 % Syntax: chnkr = chunkerfunc(fcurve,cparams,pref)
@@ -107,8 +107,10 @@ ifprocess = zeros(nchmax,1);
 %       as the interpolation/coefficients matrices
 
 k2 = 2*k;
-[xs,ws] = lege.exps(k);
-[xs2,~,u2] = lege.exps(k2);   
+if nargin < 9
+    [xs,ws,u] = lege.exps(k);
+    [xs2,ws2,u2] = lege.exps(k2);   
+end
 
 %       . . . start chunking
 

@@ -52,7 +52,19 @@ for j = 1:nch
     jmatend = j*k*opdims(2);
     
     ibefore = adj(1,j);
+    if (ibefore < 0)
+        vrt = chnkr.vert{-ibefore};
+        if (length(vrt) == 2)
+            ibefore = vrt(vrt ~= j);
+        end
+    end
     iafter = adj(2,j);
+    if (iafter < 0)
+        vrt = chnkr.vert{-iafter};
+        if (length(vrt) == 2)
+            iafter = vrt(vrt ~= j);
+        end
+    end
 
     % neighbors
     

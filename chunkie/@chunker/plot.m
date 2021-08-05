@@ -33,7 +33,7 @@ for i = 1:length(obj)
         xs = tmp.r(1,:,istart:iend); xs = xs(:);
         ys = tmp.r(2,:,istart:iend); ys = ys(:);
 
-        if ifclosed
+        if ifclosed(ii)
             xs = [xs(:); xs(1)];
             ys = [ys(:); ys(1)];
         end

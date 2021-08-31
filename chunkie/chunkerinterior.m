@@ -126,8 +126,12 @@ ainterpover = lege.matrin(chnkr.k,tover);
 for i = 1:length(iflagged)
     ii = iflagged(i);
     ich = pt2chnk(itarg_dists(ii));
-    ich = [ich; chnkr.adj(:,ich)];
-    [rn,dn] = nearest(chnkr,pts(:,ii),ich,[],u,tover,ainterpover);
+    iadj = chnkr.adj(:,ich);
+    adj1 = iadj(iadj > 0);
+    iverts = -iadj(iadj < 0);
+    adj2 = [chnkr.vert{iverts}];
+    ich2 = [ich; adj1(:); adj2(:)];
+    [rn,dn] = nearest(chnkr,pts(:,ii),ich2,[],u,tover,ainterpover);
     in(ii) = (rn(:)-pts(:,ii)).'*[dn(2);-dn(1)] > 0;
 end
 

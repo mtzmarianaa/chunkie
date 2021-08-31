@@ -3,7 +3,7 @@
 clearvars; clc;
 addpaths_loc();
 
-% pre-defined vertices for a basumrbell shape
+% pre-defined vertices for a barbell shape
 
 verts = chnk.demo.barbell(2.0,2.0,1.0,1.0);
 nv = size(verts,2);
@@ -53,7 +53,7 @@ gs = grads*pert(:);
 gx = g(1:2:end); gy = g(2:2:end);
 gint = sum((fval(:,2).*gx(:)+fval(:,3).*gy(:)).*wts(:)) + ... 
     sum(fval(:,1).*gs.*wtsraw);
-rnrm = normals(chnkr);
+
 
 for i = 1:nt
     eps = 10^(-(i));

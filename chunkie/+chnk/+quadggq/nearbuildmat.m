@@ -9,8 +9,11 @@ rt = r(:,:,i); dt = d(:,:,i); d2t = d2(:,:,i); nt = n(:,:,i);
 hs = h(j);
 if(isempty(data))
     dd = [];
+    dds = [];
+    datafine = [];
 else
     dd = data(:,:,i);
+    dds = data(:,:,j);
 end
 % interpolate boundary info
 
@@ -55,9 +58,12 @@ end
 
 rfine = (ainterp1*(rs.')).'; dfine = (ainterp1*(ds.')).'; 
 d2fine = (ainterp1*(d2s.')).'; nfine = (ainterp1*(ns.')).';
+if(~isempty(data))
+    datafine = (ainterp1*(dds.')).';
+end
 
 srcinfo = []; srcinfo.r = rfine; srcinfo.d = dfine; srcinfo.n = nfine;
-srcinfo.d2 = d2fine; srcinfo.n = nfine;
+srcinfo.d2 = d2fine; srcinfo.n = nfine; srcinfo.data = datafine;
 
 targinfo = []; targinfo.r = rt; targinfo.d = dt; targinfo.n = nt;
 targinfo.d2 = d2t; targinfo.n = nt; targinfo.data = dd;

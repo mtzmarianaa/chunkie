@@ -8,8 +8,11 @@ rs = r(:,:,i); ds = d(:,:,i); d2s = d2(:,:,i); hs = h(i);
 ns = n(:,:,i);
 if(isempty(data))
     dd = [];
+    ddim = 1;
 else
     dd = data(:,:,i);
+    dds = data(:,:,i);
+    [ddim,~,~] = size(data);
 end
 % interpolate boundary info
 
@@ -22,11 +25,16 @@ rfine = zeros(dim,nq,nt);
 dfine = zeros(dim,nq,nt);
 nfine = zeros(dim,nq,nt);
 d2fine = zeros(dim,nq,nt);
+
+datafine = zeros(ddim,nq,nt);
 for i = 1:nt
     rfine(:,:,i) = (ainterps0(:,:,i)*(rs.')).';
     dfine(:,:,i) = (ainterps0(:,:,i)*(ds.')).';
     nfine(:,:,i) = (ainterps0(:,:,i)*(ns.')).';
-    d2fine(:,:,i) = (ainterps0(:,:,i)*(d2s.')).';    
+    d2fine(:,:,i) = (ainterps0(:,:,i)*(d2s.')).';
+    if(~isempty(data))
+        datafine(:,:,i) = (ainterps0(:,:,i)*(dds.')).';
+    end
 end
 
 %  rsc = u*(rs.');
@@ -80,6 +88,7 @@ targinfo = [];
 for j = 1:k
   srcinfo.r = rfine(:,:,j); srcinfo.d = dfine(:,:,j);
   srcinfo.d2 = d2fine(:,:,j); srcinfo.n = nfine(:,:,j);
+  srcinfo.data = datafine(:,:,j);
   targinfo.r = rs(:,j); targinfo.d = ds(:,j);
   targinfo.d2 = d2s(:,j); targinfo.n = ns(:,j);
   if(isempty(dd))

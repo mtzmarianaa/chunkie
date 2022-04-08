@@ -66,6 +66,7 @@ chnkr = chnkr.addchunk(nch);
 
 ts = linspace(ta,tb,nch+1);
 
+
 k = pref.k;
  
 dim = checkcurveparam(fcurve,ta);
@@ -74,6 +75,8 @@ nout = 3;
 out = cell(nout,1);
 
 [xs,ws] = lege.exps(k);
+
+tvals = zeros(k,nch);
 
 %       . . . start chunking
 
@@ -104,6 +107,7 @@ for i = 1:nch
     b=ab(2,i);
     
     ts = a + (b-a)*(xs+1)/2;
+    tvals(:,i) = ts;
     [out{:}] = fcurve(ts);
     chnkr.r(:,:,i) = reshape(out{1},dim,k);
     chnkr.d(:,:,i) = reshape(out{2},dim,k);
@@ -115,5 +119,7 @@ chnkr.adj = adjs(:,1:nch);
 
 % added by Shidong Jiang
 chnkr.n = normals(chnkr);
+chnkr = chnkr.makedatarows(1);
+chnkr.data = tvals;
 
 end

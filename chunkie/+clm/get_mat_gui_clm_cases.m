@@ -12,7 +12,7 @@ function [M,RG] = get_mat_gui_clm_cases(chnkr,clmparams,icase,opts)
     if isfield(clmparams,'cpars')
       cpars = clmparams.cpars;
     end
-
+    ncorner = 0;
     if isfield(clmparams,'ncorner')
       ncorner = clmparams.ncorner;
     end

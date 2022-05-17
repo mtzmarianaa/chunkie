@@ -2,9 +2,9 @@
 % the transmission problem in a multiply connected geometry
 
 
-centers = [3,0,4; 3,4,0];
-phis = [0;0.3;0];
-scales = [1.0;1.0;0.7];
+centers = [-0.5,-0.5,0.3; 0.5,-0.5,0];
+phis = [0;0.0;0];
+scales = [0.3;0.3;0.3];
 [~,ncurve] = size(centers);
 
 kin = 3.0;
@@ -178,6 +178,8 @@ for i=1:ncurve
   if j2 > ndomain
     j2 = j2 - ndomain;
   end
+  
+  fprintf('icurve: %d     d1: %d     d2 :%d\n',i,d1,d2);
 
   c1 = coef(d1);
   c2 = coef(d2);
@@ -211,12 +213,12 @@ for i=1:ncurve
   u2inc = zeros(nn,n_dir);
   dudn1inc = zeros(nn,n_dir);
   dudn2inc = zeros(nn,n_dir);
-  if(j1 == ndomain)
+  if(d1 == ndomain)
     u1inc  = exp(1i *k1(i) * (bsxfun(@times,xs',x_dir)+bsxfun(@times,ys',y_dir)));
     dudn1inc = 1i* k1(i) * (bsxfun(@times,dys',x_dir)-bsxfun(@times,dxs',y_dir))./repmat(ds',1,n_dir) .* ...
             u1inc;
   end
-  if(j2 == ndomain)
+  if(d2 == ndomain)
       u2inc  = exp(1i *k2(i) * (bsxfun(@times,xs',x_dir)+bsxfun(@times,ys',y_dir)));
     dudn2inc = 1i* k2(i) * (bsxfun(@times,dys',x_dir)-bsxfun(@times,dxs',y_dir))./repmat(ds',1,n_dir) .* ...
             u2inc;
